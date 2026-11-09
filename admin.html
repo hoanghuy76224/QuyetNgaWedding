@@ -87,12 +87,12 @@ const KEY='qn_guests';let gs=[];try{gs=JSON.parse(localStorage.getItem(KEY)||'[]
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(gs))}catch(e){}};
 const mk=(n,side)=>BASE+side+'/?to='+encodeURIComponent(n.trim().replace(/\s+/g,'_'));
 function rg(){$('#gls').innerHTML=gs.length?'<table><tbody>'+gs.map((g,i)=>`<tr><td><b>${esc(g.n)}</b> <span class="tag side">${g.s=='nhagai'?'Nhà gái':'Nhà trai'}</span><div class="link">${esc(mk(g.n,g.s))}</div></td><td style="text-align:right;white-space:nowrap"><button class="btn sm" data-c="${i}">Copy</button> <button class="btn ghost sm" data-d="${i}">Xóa</button></td></tr>`).join('')+'</tbody></table>':'<div class="empty">Chưa có tên nào</div>'}
-$('#add').onclick=()=>{const s=$('#gs').value,ns=$('#gl').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!ns.length)return;ns.forEach(n=>gs.unshift({n,s}));$('#gl').value='';save();rg();
-}
-const unlock=()=>{$('#lock').remove();start()};
-if(ok)unlock();else{$('#lp').focus();$('#lf').onsubmit=async e=>{e.preventDefault();if(await sha($('#lp').value)===HASH){try{sessionStorage.setItem('qn_ok',HASH)}catch(e){}unlock()}else{$('#lerr').textContent='Sai mật khẩu';$('#lp').value=''}}}if(ns.length==1)copy(mk(ns[0],s))};
+$('#add').onclick=()=>{const s=$('#gs').value,ns=$('#gl').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!ns.length)return;ns.forEach(n=>gs.unshift({n,s}));$('#gl').value='';save();rg();if(ns.length==1)copy(mk(ns[0],s))};
 $('#gls').onclick=e=>{const c=e.target.dataset.c,d=e.target.dataset.d;if(c!=null)copy(mk(gs[c].n,gs[c].s));if(d!=null){gs.splice(d,1);save();rg()}};
 $('#cpall').onclick=()=>gs.length&&copy(gs.map(g=>g.n+': '+mk(g.n,g.s)).join('\n'));
 $('#clr').onclick=()=>{if(confirm('Xóa toàn bộ danh sách link?')){gs=[];save();rg()}};
 rg();
+}
+const unlock=()=>{$('#lock').remove();start()};
+if(ok)unlock();else{$('#lp').focus();$('#lf').onsubmit=async e=>{e.preventDefault();if(await sha($('#lp').value)===HASH){try{sessionStorage.setItem('qn_ok',HASH)}catch(e){}unlock()}else{$('#lerr').textContent='Sai mật khẩu';$('#lp').value=''}}}
 </script></body></html>
