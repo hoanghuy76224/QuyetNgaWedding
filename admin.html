@@ -35,7 +35,8 @@ th{color:var(--mute);font-weight:500;font-size:12px;text-transform:uppercase;let
 .hide{display:none}.empty{color:var(--mute);text-align:center;padding:18px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;transition:.3s;pointer-events:none}#toast.on{opacity:1}
 @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}thead{display:none}tr{display:block;border-bottom:1px solid var(--line);padding:8px 0}td{display:block;border:0;padding:2px 0}}
-</style></head><body><div class="wrap">
+#lock{position:fixed;inset:0;z-index:99;background:#f6f7f2;display:flex;align-items:center;justify-content:center;padding:16px}#lock form{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;width:100%;max-width:340px;text-align:center}#lock h1{margin-bottom:4px}#lock input{width:100%;margin:14px 0 10px}#lock .btn{width:100%}#lerr{color:#9a4a42;font-size:13px;min-height:18px;margin-top:8px}
+</style></head><body><div id="lock"><form id="lf"><h1>Quyết &amp; Nga</h1><div class="sub">Nhập mật khẩu để vào trang quản lý</div><input id="lp" type="password" autocomplete="current-password" placeholder="Mật khẩu"><button class="btn">Vào</button><div id="lerr"></div></form></div><div class="wrap">
 <h1>Văn Quyết &amp; Thu Nga</h1><div class="sub">Trang quản lý thiệp cưới</div>
 <div class="tabs"><button class="on" data-t="rsvp">Xác nhận tham dự</button><button data-t="guest">Tên khách mời</button></div>
 
@@ -60,6 +61,10 @@ const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');setTim
 const copy=t=>navigator.clipboard.writeText(t).then(()=>toast('Đã copy')).catch(()=>prompt('Copy:',t));
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));$('#t-rsvp').classList.toggle('hide',b.dataset.t!='rsvp');$('#t-guest').classList.toggle('hide',b.dataset.t!='guest')});
 
+const HASH='dcf848f8fc53b63a0c8c5da647712639a41f5db80415adc7964fafb6cb2febc6';
+const sha=async t=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)))].map(x=>x.toString(16).padStart(2,'0')).join('');
+let ok=false;try{ok=sessionStorage.getItem('qn_ok')===HASH}catch(e){}
+async function start(){
 /* RSVP */
 let rows=[];
 const A=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),F=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
@@ -82,7 +87,10 @@ const KEY='qn_guests';let gs=[];try{gs=JSON.parse(localStorage.getItem(KEY)||'[]
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(gs))}catch(e){}};
 const mk=(n,side)=>BASE+side+'/?to='+encodeURIComponent(n.trim().replace(/\s+/g,'_'));
 function rg(){$('#gls').innerHTML=gs.length?'<table><tbody>'+gs.map((g,i)=>`<tr><td><b>${esc(g.n)}</b> <span class="tag side">${g.s=='nhagai'?'Nhà gái':'Nhà trai'}</span><div class="link">${esc(mk(g.n,g.s))}</div></td><td style="text-align:right;white-space:nowrap"><button class="btn sm" data-c="${i}">Copy</button> <button class="btn ghost sm" data-d="${i}">Xóa</button></td></tr>`).join('')+'</tbody></table>':'<div class="empty">Chưa có tên nào</div>'}
-$('#add').onclick=()=>{const s=$('#gs').value,ns=$('#gl').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!ns.length)return;ns.forEach(n=>gs.unshift({n,s}));$('#gl').value='';save();rg();if(ns.length==1)copy(mk(ns[0],s))};
+$('#add').onclick=()=>{const s=$('#gs').value,ns=$('#gl').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!ns.length)return;ns.forEach(n=>gs.unshift({n,s}));$('#gl').value='';save();rg();
+}
+const unlock=()=>{$('#lock').remove();start()};
+if(ok)unlock();else{$('#lp').focus();$('#lf').onsubmit=async e=>{e.preventDefault();if(await sha($('#lp').value)===HASH){try{sessionStorage.setItem('qn_ok',HASH)}catch(e){}unlock()}else{$('#lerr').textContent='Sai mật khẩu';$('#lp').value=''}}}if(ns.length==1)copy(mk(ns[0],s))};
 $('#gls').onclick=e=>{const c=e.target.dataset.c,d=e.target.dataset.d;if(c!=null)copy(mk(gs[c].n,gs[c].s));if(d!=null){gs.splice(d,1);save();rg()}};
 $('#cpall').onclick=()=>gs.length&&copy(gs.map(g=>g.n+': '+mk(g.n,g.s)).join('\n'));
 $('#clr').onclick=()=>{if(confirm('Xóa toàn bộ danh sách link?')){gs=[];save();rg()}};
