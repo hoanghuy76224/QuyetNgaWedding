@@ -43,7 +43,7 @@ th{color:var(--mute);font-weight:500;font-size:12px;text-transform:uppercase;let
 <section id="t-rsvp">
 <div class="stats"><div class="stat"><b id="s1">0</b><small>Lượt xác nhận</small></div><div class="stat"><b id="s2">0</b><small>Sẽ đến</small></div><div class="stat"><b id="s3">0</b><small>Tổng số người</small></div><div class="stat"><b id="s4">0</b><small>Không đến</small></div></div>
 <div class="card"><div class="row" style="margin-bottom:10px"><input id="q" placeholder="Tìm tên…"><select id="fs"><option value="">Cả 2 bên</option><option value="trai">Nhà trai</option><option value="gai">Nhà gái</option></select><select id="ft"><option value="">Tất cả</option><option value="co">Sẽ đến</option><option value="khong">Không đến</option></select><button class="btn ghost" id="csv">Xuất Excel</button></div>
-<table><thead><tr><th>Khách</th><th>Tham dự</th><th>Số người</th><th>Bên</th><th>Thời gian</th></tr></thead><tbody id="tb"><tr><td colspan="5" class="empty">Đang tải…</td></tr></tbody></table></div>
+<table><thead><tr><th>Khách</th><th>Tham dự</th><th>Số người</th><th>Bên</th><th>Thời gian</th><th></th></tr></thead><tbody id="tb"><tr><td colspan="6" class="empty">Đang tải…</td></tr></tbody></table></div>
 </section>
 
 <section id="t-guest" class="hide">
@@ -76,10 +76,11 @@ function render(){
   const yes=base.filter(r=>r.attend=='co');
   $('#s1').textContent=base.length;$('#s2').textContent=yes.length;$('#s3').textContent=yes.reduce((a,r)=>a+(+r.count||1),0);$('#s4').textContent=base.length-yes.length;
   const v=base.filter(r=>(!ft||r.attend==ft)&&(!q||String(r.name).toLowerCase().includes(q)));
-  $('#tb').innerHTML=v.length?v.map(r=>`<tr><td><b>${esc(r.name)}</b>${r.wish?`<div class="wish">${esc(r.wish)}</div>`:''}</td><td><span class="tag ${r.attend=='co'?'yes':'no'}">${r.attend=='co'?'Sẽ đến':'Không đến'}</span></td><td>${r.attend=='co'?(+r.count||1):'-'}</td><td><span class="tag side">${r.side=='gai'?'Nhà gái':'Nhà trai'}</span></td><td>${fmt(r.t)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">Chưa có xác nhận nào</td></tr>';
+  $('#tb').innerHTML=v.length?v.map(r=>`<tr><td><b>${esc(r.name)}</b>${r.wish?`<div class="wish">${esc(r.wish)}</div>`:''}</td><td><span class="tag ${r.attend=='co'?'yes':'no'}">${r.attend=='co'?'Sẽ đến':'Không đến'}</span></td><td>${r.attend=='co'?(+r.count||1):'-'}</td><td><span class="tag side">${r.side=='gai'?'Nhà gái':'Nhà trai'}</span></td><td>${fmt(r.t)}</td><td><button class="btn ghost sm" data-x="${r.id}">Xóa</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">Chưa có xác nhận nào</td></tr>';
 }
-F.onSnapshot(F.query(F.collection(db,"rsvp_thunga"),F.orderBy("createdAt","desc")),s=>{rows=s.docs.map(d=>({...d.data(),t:d.data().createdAt?.toDate?.()}));render()},e=>{$('#tb').innerHTML='<tr><td colspan="5" class="empty">Không tải được dữ liệu</td></tr>'});
+F.onSnapshot(F.query(F.collection(db,"rsvp_thunga"),F.orderBy("createdAt","desc")),s=>{rows=s.docs.map(d=>({...d.data(),id:d.id,t:d.data().createdAt?.toDate?.()}));render()},e=>{$('#tb').innerHTML='<tr><td colspan="6" class="empty">Không tải được dữ liệu</td></tr>'});
 ['#q','#fs','#ft'].forEach(k=>$(k).oninput=render);
+$('#tb').onclick=async e=>{const id=e.target.dataset.x;if(!id)return;const r=rows.find(x=>x.id==id);if(!confirm('Xóa xác nhận và lời chúc của '+(r?.name||'')+'? Không khôi phục được.'))return;try{await F.deleteDoc(F.doc(db,'rsvp_thunga',id));toast('Đã xóa')}catch(err){toast('Không xóa được')}};
 $('#csv').onclick=()=>{const c=s=>'"'+String(s??'').replace(/"/g,'""')+'"';const t='﻿Tên,Tham dự,Số người,Bên,Lời chúc,Thời gian\n'+rows.map(r=>[r.name,r.attend=='co'?'Sẽ đến':'Không đến',r.attend=='co'?(+r.count||1):0,r.side=='gai'?'Nhà gái':'Nhà trai',r.wish,fmt(r.t)].map(c).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='rsvp-quyet-nga.csv';a.click()};
 
 /* Guest links */
