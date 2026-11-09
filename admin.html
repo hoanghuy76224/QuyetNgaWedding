@@ -1,0 +1,90 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Admin RSVP · Văn Quyết & Thu Nga</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--g:#6e8c62;--gd:#55704b;--gl:#eef2e8;--ink:#3c4a37;--mute:#7b8775;--line:#dfe5d8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:400 15px/1.5 'Be Vietnam Pro',sans-serif;color:var(--ink);background:#f6f7f2}
+.wrap{max-width:900px;margin:0 auto;padding:22px 16px 60px}
+h1{font:600 32px 'Cormorant Garamond',serif;color:var(--gd);text-align:center}
+.sub{text-align:center;color:var(--mute);font-size:13px;margin-bottom:18px}
+.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+.tabs button{border:1px solid var(--g);background:#fff;color:var(--gd);padding:8px 16px;border-radius:99px;font:500 14px inherit;font-family:inherit;cursor:pointer}
+.tabs button.on{background:var(--g);color:#fff}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font:600 22px 'Cormorant Garamond',serif;color:var(--gd);margin-bottom:10px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat b{display:block;font:600 28px 'Cormorant Garamond',serif;color:var(--gd)}.stat small{color:var(--mute);font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input,select,textarea{font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);min-width:0}
+input,textarea{flex:1}
+textarea{width:100%;resize:vertical}
+.btn{border:0;background:var(--g);color:#fff;border-radius:10px;padding:10px 14px;font:500 14px inherit;font-family:inherit;cursor:pointer;white-space:nowrap}
+.btn.ghost{background:var(--gl);color:var(--gd)}.btn.sm{padding:6px 10px;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;white-space:nowrap}
+.yes{background:#e3efdc;color:#3f6b33}.no{background:#f6e3e1;color:#9a4a42}
+.side{background:var(--gl);color:var(--gd)}
+.wish{color:var(--mute);font-size:13px;margin-top:3px}
+.link{font-size:12px;color:var(--mute);word-break:break-all}
+.hide{display:none}.empty{color:var(--mute);text-align:center;padding:18px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:99px;font-size:14px;opacity:0;transition:.3s;pointer-events:none}#toast.on{opacity:1}
+@media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}thead{display:none}tr{display:block;border-bottom:1px solid var(--line);padding:8px 0}td{display:block;border:0;padding:2px 0}}
+</style></head><body><div class="wrap">
+<h1>Văn Quyết &amp; Thu Nga</h1><div class="sub">Trang quản lý thiệp cưới</div>
+<div class="tabs"><button class="on" data-t="rsvp">Xác nhận tham dự</button><button data-t="guest">Tên khách mời</button></div>
+
+<section id="t-rsvp">
+<div class="stats"><div class="stat"><b id="s1">0</b><small>Lượt xác nhận</small></div><div class="stat"><b id="s2">0</b><small>Sẽ đến</small></div><div class="stat"><b id="s3">0</b><small>Tổng số người</small></div><div class="stat"><b id="s4">0</b><small>Không đến</small></div></div>
+<div class="card"><div class="row" style="margin-bottom:10px"><input id="q" placeholder="Tìm tên…"><select id="fs"><option value="">Cả 2 bên</option><option value="trai">Nhà trai</option><option value="gai">Nhà gái</option></select><select id="ft"><option value="">Tất cả</option><option value="co">Sẽ đến</option><option value="khong">Không đến</option></select><button class="btn ghost" id="csv">Xuất Excel</button></div>
+<table><thead><tr><th>Khách</th><th>Tham dự</th><th>Số người</th><th>Bên</th><th>Thời gian</th></tr></thead><tbody id="tb"><tr><td colspan="5" class="empty">Đang tải…</td></tr></tbody></table></div>
+</section>
+
+<section id="t-guest" class="hide">
+<div class="card"><h2>Tạo link mời theo tên</h2>
+<div class="row" style="margin-bottom:8px"><select id="gs"><option value="nhatrai">Bản nhà trai</option><option value="nhagai">Bản nhà gái</option></select></div>
+<textarea id="gl" rows="4" placeholder="Mỗi dòng một tên, vd:&#10;Gia đình chú Hùng&#10;Anh Tuấn và gia đình"></textarea>
+<div class="row" style="margin-top:8px"><button class="btn" id="add">Tạo link</button><span style="color:var(--mute);font-size:13px;align-self:center">Không nhập tên thì thiệp hiện Quý gia đình</span></div></div>
+<div class="card"><h2>Danh sách link</h2><div class="row" style="margin-bottom:8px"><button class="btn ghost sm" id="cpall">Copy tất cả</button><button class="btn ghost sm" id="clr">Xóa danh sách</button></div><div id="gls"></div></div>
+</section>
+</div><div id="toast"></div>
+<script type="module">
+const $=s=>document.querySelector(s),BASE='https://quyetngawedding.khunglongcon.com/';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1600)};
+const copy=t=>navigator.clipboard.writeText(t).then(()=>toast('Đã copy')).catch(()=>prompt('Copy:',t));
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x==b));$('#t-rsvp').classList.toggle('hide',b.dataset.t!='rsvp');$('#t-guest').classList.toggle('hide',b.dataset.t!='guest')});
+
+/* RSVP */
+let rows=[];
+const A=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"),F=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+const db=F.getFirestore(A.initializeApp({apiKey:"AIzaSyDKojhw5-SFWukGSN_oSjw5vxJngrfIogo",authDomain:"vo-iu-dino-848d2.firebaseapp.com",projectId:"vo-iu-dino-848d2"}));
+const fmt=d=>d?d.toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'}):'';
+function render(){
+  const q=$('#q').value.trim().toLowerCase(),fs=$('#fs').value,ft=$('#ft').value;
+  const base=rows.filter(r=>!fs||r.side==fs);
+  const yes=base.filter(r=>r.attend=='co');
+  $('#s1').textContent=base.length;$('#s2').textContent=yes.length;$('#s3').textContent=yes.reduce((a,r)=>a+(+r.count||1),0);$('#s4').textContent=base.length-yes.length;
+  const v=base.filter(r=>(!ft||r.attend==ft)&&(!q||String(r.name).toLowerCase().includes(q)));
+  $('#tb').innerHTML=v.length?v.map(r=>`<tr><td><b>${esc(r.name)}</b>${r.wish?`<div class="wish">${esc(r.wish)}</div>`:''}</td><td><span class="tag ${r.attend=='co'?'yes':'no'}">${r.attend=='co'?'Sẽ đến':'Không đến'}</span></td><td>${r.attend=='co'?(+r.count||1):'-'}</td><td><span class="tag side">${r.side=='gai'?'Nhà gái':'Nhà trai'}</span></td><td>${fmt(r.t)}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">Chưa có xác nhận nào</td></tr>';
+}
+F.onSnapshot(F.query(F.collection(db,"rsvp_thunga"),F.orderBy("createdAt","desc")),s=>{rows=s.docs.map(d=>({...d.data(),t:d.data().createdAt?.toDate?.()}));render()},e=>{$('#tb').innerHTML='<tr><td colspan="5" class="empty">Không tải được dữ liệu</td></tr>'});
+['#q','#fs','#ft'].forEach(k=>$(k).oninput=render);
+$('#csv').onclick=()=>{const c=s=>'"'+String(s??'').replace(/"/g,'""')+'"';const t='﻿Tên,Tham dự,Số người,Bên,Lời chúc,Thời gian\n'+rows.map(r=>[r.name,r.attend=='co'?'Sẽ đến':'Không đến',r.attend=='co'?(+r.count||1):0,r.side=='gai'?'Nhà gái':'Nhà trai',r.wish,fmt(r.t)].map(c).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/csv'}));a.download='rsvp-quyet-nga.csv';a.click()};
+
+/* Guest links */
+const KEY='qn_guests';let gs=[];try{gs=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(gs))}catch(e){}};
+const mk=(n,side)=>BASE+side+'/?to='+encodeURIComponent(n.trim().replace(/\s+/g,'_'));
+function rg(){$('#gls').innerHTML=gs.length?'<table><tbody>'+gs.map((g,i)=>`<tr><td><b>${esc(g.n)}</b> <span class="tag side">${g.s=='nhagai'?'Nhà gái':'Nhà trai'}</span><div class="link">${esc(mk(g.n,g.s))}</div></td><td style="text-align:right;white-space:nowrap"><button class="btn sm" data-c="${i}">Copy</button> <button class="btn ghost sm" data-d="${i}">Xóa</button></td></tr>`).join('')+'</tbody></table>':'<div class="empty">Chưa có tên nào</div>'}
+$('#add').onclick=()=>{const s=$('#gs').value,ns=$('#gl').value.split('\n').map(x=>x.trim()).filter(Boolean);if(!ns.length)return;ns.forEach(n=>gs.unshift({n,s}));$('#gl').value='';save();rg();if(ns.length==1)copy(mk(ns[0],s))};
+$('#gls').onclick=e=>{const c=e.target.dataset.c,d=e.target.dataset.d;if(c!=null)copy(mk(gs[c].n,gs[c].s));if(d!=null){gs.splice(d,1);save();rg()}};
+$('#cpall').onclick=()=>gs.length&&copy(gs.map(g=>g.n+': '+mk(g.n,g.s)).join('\n'));
+$('#clr').onclick=()=>{if(confirm('Xóa toàn bộ danh sách link?')){gs=[];save();rg()}};
+rg();
+</script></body></html>
